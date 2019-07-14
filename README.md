@@ -15,7 +15,7 @@ public interface ExampleRpcApi {
 ## RPC Client
 
 ```
-Configuration conf = new Configuration();
+Configuration conf = getConf();
 HadoopRpcClient<ExampleRpcApi> rpcClient = new HadoopRpcClient<>(conf, ExampleRpcApi.class);
 ExampleRpcApi client = rpcClient.getClient("localhost", 9000);
 ```
@@ -35,7 +35,8 @@ Configuration configuration = getConf();
 UserGroupInformation ugi = getUgi();
 ugi.doAs((PrivilegedExceptionAction<Void>) () -> {
   LOGGER.info("Creating server with ugi {}", UserGroupInformation.getCurrentUser());
-  Server server = HadoopRpcServer.createServer(configuration, "0.0.0.0", 9000, 10, ExampleRpcApi.class, instance);
+  HadoopRpcServerFactory<ExampleRpcApi> factory = new HadoopRpcServerFactory<>(configuration, ExampleRpcApi.class);
+  Server server = factory.createServer("0.0.0.0", 9000, 10, instance);
   server.start();
   server.join();
   return null;

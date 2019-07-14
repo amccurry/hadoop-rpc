@@ -12,20 +12,44 @@ import org.apache.hadoop.net.NetUtils;
 import org.apache.hadoop.security.KerberosInfo;
 import org.apache.hadoop.security.UserGroupInformation;
 
-public class HadoopRpcClient<K> {
+/**
+ * The Hadoop RPC client factory.
+ */
+public class HadoopRpcClientFactory<K> {
 
+  private static final String PATTERN = ".pattern";
   private final Configuration _conf;
   private final Class<K> _clazz;
 
-  public HadoopRpcClient(Configuration conf, Class<K> clazz) {
+  public HadoopRpcClientFactory(Configuration conf, Class<K> clazz) {
     _conf = conf;
     _clazz = clazz;
   }
 
+  /**
+   * Create a new client.
+   * 
+   * @param address
+   *          of remote server.
+   * @return the new client.
+   * @throws IOException
+   * @throws InterruptedException
+   */
   public K getClient(InetSocketAddress address) throws IOException, InterruptedException {
     return getClient(address, _conf, UserGroupInformation.getCurrentUser(), _clazz);
   }
 
+  /**
+   * Create a new client.
+   * 
+   * @param host
+   *          of remote server.
+   * @param port
+   *          of remote server.
+   * @return the new client.
+   * @throws IOException
+   * @throws InterruptedException
+   */
   public K getClient(String host, int port) throws IOException, InterruptedException {
     return getClient(new InetSocketAddress(host, port));
   }
@@ -53,8 +77,8 @@ public class HadoopRpcClient<K> {
 
   private static <T> void setupConfigDefaults(Configuration configuration, Class<T> clazz) {
     String serverPrincipal = getServerPrincipal(clazz);
-    if (configuration.get(serverPrincipal + ".pattern") == null) {
-      configuration.set(serverPrincipal + ".pattern", "*");
+    if (configuration.get(serverPrincipal + PATTERN) == null) {
+      configuration.set(serverPrincipal + PATTERN, "*");
     }
   }
 
